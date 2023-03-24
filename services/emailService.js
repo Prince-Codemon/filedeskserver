@@ -113,7 +113,7 @@ const sendVerificationEmail = async (to, token) => {
         <p>Thank you for registering with us. To get started, please verify your email address by clicking on the link below:</p>
         <hr/>
         <p>
-        <a href="${process.env.CLIENT_URL}/auth/verifyemail/${token}">Verify Email</a>
+        <a href="${process.env.CLIENT_URL}/verifyemail/${token}">Verify Email</a>
         </p>
         <i>This link is valid for <b>24hrs</b> </i>
          <p>Once you've verified your email address, you'll have access to all of our features and content.</p>
@@ -220,7 +220,7 @@ const sendResetPasswordEmail = async (to, token) => {
         <p>Thank you for being a part of <b>FileDesk</b>.You can reset your password by clicking on the link below:</p>
         <hr/>
         <p>
-        <a href="${process.env.CLIENT_URL}/auth/resetpassword/${token}">Reset Password</a>
+        <a href="${process.env.CLIENT_URL}/resetpassword/${token}">Reset Password</a>
         </p>
         <i>This link is valid for <b>24hrs</b> </i>
          <p>Once you've reset your password, you can login to your account easily.</p>

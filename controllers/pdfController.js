@@ -13,9 +13,8 @@ const compressFile = async(exsistingToBytes,originalName)=>{
   const pdfDoc = await PDFDocument.load(exsistingToBytes)
   const compressedPdfBytes = await pdfDoc.save();
   fs.writeFileSync(originalName, compressedPdfBytes)
-  
-
 }
+//complete
 const zipfile = async (req, res) => {
   try {
     if(!req?.file){
@@ -34,7 +33,7 @@ const zipfile = async (req, res) => {
     return res.status(500).json({ msg: error });
   }
 };
-
+//complete
 const docToPdf = async (req, res) => {
   try {
     if(!req?.file){
@@ -56,7 +55,7 @@ const docToPdf = async (req, res) => {
         }
       }
     );
-    return res.status(201).json({ path: fileName + ext });
+    return res.status(201).json({ path: `uploads/${fileName}${ext}` });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: error });
