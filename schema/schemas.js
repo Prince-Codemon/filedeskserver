@@ -14,4 +14,18 @@ const passwordSchema = [
     ),
 ];
 
-module.exports = passwordSchema;
+const emailSchema = [
+  body("email")
+    .not()
+    .isEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Email is invalid"),
+
+
+]
+
+module.exports = {
+  passwordSchema,
+  emailSchema,
+}

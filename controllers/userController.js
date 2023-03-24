@@ -155,6 +155,11 @@ const adminProfile = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array()[0].msg });
+    }
+    
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(500).json({ error: "No account found on this email" });
