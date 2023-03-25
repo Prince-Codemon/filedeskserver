@@ -10,16 +10,26 @@ const shopSchema = [
     .withMessage("Order accepting is required")
     .isBoolean()
     .withMessage("Order accepting must be a boolean value"),
-  body("bwprice")
+  body("bwSingle")
     .exists()
-    .withMessage("Black and white price is required")
+    .withMessage("Black and white single price is required")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("Black and white price is required")
+    .withMessage("Black and white single price is required")
     .isNumeric()
-    .withMessage("Black and white price must be a number"),
-  body("colorprice")
+    .withMessage("Black and white single price must be a number"),
+  body("bwDouble")
+    .exists()
+    .withMessage("Black and white double price is required")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("Black and white double price is required")
+    .isNumeric()
+    .withMessage("Black and white double price must be a number"),
+
+  body("colorPrice")
     .exists()
     .withMessage("Color price is required")
     .trim()
@@ -28,7 +38,7 @@ const shopSchema = [
     .withMessage("Color price is required")
     .isNumeric()
     .withMessage("Color price must be a number"),
-  body("coverprice")
+  body("coverPrice")
     .exists()
     .withMessage("Cover price is required")
     .trim()
@@ -37,16 +47,8 @@ const shopSchema = [
     .withMessage("Cover price is required")
     .isNumeric()
     .withMessage("Cover price must be a number"),
-  body("bindingprice")
-    .exists()
-    .withMessage("Binding price is required")
-    .trim()
-    .not()
-    .isEmpty()
-    .withMessage("Binding price is required")
-    .isNumeric()
-    .withMessage("Binding price must be a number"),
-  body("deliveryprice")
+  
+  body("deliveryPrice")
     .exists()
     .withMessage("Delivery price is required")
     .trim()
@@ -55,7 +57,7 @@ const shopSchema = [
     .withMessage("Delivery price is required")
     .isNumeric()
     .withMessage("Delivery price must be a number"),
-  body("spiralprice")
+  body("spiralPrice")
     .exists()
     .withMessage("Spiral price is required")
     .trim()
@@ -64,6 +66,16 @@ const shopSchema = [
     .withMessage("Spiral price is required")
     .isNumeric()
     .withMessage("Spiral price must be a number"),
+  body("fastDeliveryPrice")
+    .exists()
+    .withMessage("Fast delivery price is required")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("Fast delivery price is required")
+    .isNumeric()
+    .withMessage("Fast delivery price must be a number"),
+    
   // body('owner')
   // .exists()
   // .withMessage('Owner is required')
@@ -74,3 +86,6 @@ const shopSchema = [
   // .isMongoId()
   // .withMessage('Owner must be a valid mongo id')
 ];
+
+
+module.exports = shopSchema;

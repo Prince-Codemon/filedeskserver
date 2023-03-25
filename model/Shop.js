@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const shopSchema = new mongoose.Schema({
-  bwPrice: {
+  bwSingle: {
+    type: Number,
+    required: true,
+  },
+  bwDouble: {
     type: Number,
     required: true,
   },
@@ -13,10 +17,6 @@ const shopSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  bindingPrice: {
-    type: Number,
-    required: true,
-  },
   coverPrice: {
     type: Number,
     required: true,
@@ -25,6 +25,11 @@ const shopSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  fastDeliveryPrice:{
+    type: Number,
+    required: true,
+  },
+  
 //   owner: {
 //     type: mongoose.Schema.Types.ObjectId,
 //     required: true,
