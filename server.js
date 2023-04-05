@@ -13,7 +13,7 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 
 db()
 
-app.get('/',(req,res)=>{
+app.get('/',(req,res)=>{ 
     res.send('Hello World')
 }
 )
@@ -21,6 +21,9 @@ app.get('/',(req,res)=>{
 app.use('/api/user',require('./routes/userRoutes'))
 app.use('/api/shop',require('./routes/shopRoutes'))
 app.use('/file',require('./routes/pdfRouter'))
+app.use('/api' , require('./routes/orderRoutes'))
+app.use('/api/payment',require('./routes/paymentRoutes'))
 
 
 app.listen(PORT,()=>console.log(`Listening on => http://localhost:`,PORT))
+ 

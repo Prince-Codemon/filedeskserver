@@ -7,6 +7,7 @@ const {
   pdfToDoc,
   compressPdf,
 } = require("../controllers/pdfController");
+const { uploadFile } = require("../services/imageService");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -21,8 +22,17 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-router.post("/upload", upload.single("file"), (req, res) => {
-  res.send(`/${req.file.path}`);
+router.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "File not found" });
+    }
+    const url = await uploadFile(req);
+    return res.status(200).json({ url });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
 });
 
 router.post("/zip", upload.single("file"), zipfile);

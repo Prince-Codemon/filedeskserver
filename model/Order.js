@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    orderDate: {
-      type: Date,
-      required: true,
-    },
     orderStatus: {
       type: Number,
       default: 0,
@@ -18,31 +14,40 @@ const orderSchema = new mongoose.Schema(
       type: Array,
       required: true,
     },
-    orderCustomer: {
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
     orderAddress: {
-      type: String,
-      required: true,
-    },
-    orderPhone: {
-      type: Number,
-      required: true,
-    },
-    orderPayment: {
-      type: String,
+      type: Object,
       required: true,
     },
     orderPaymentId: {
       type: String,
+      default:null
+    },
+    orderPaymentStatus: {
+      type: Number,
       required: true,
     },
-    delivery: {
+    deliveryType: {
       type: String,
       required: true,
     },
+    orderId:{
+      type:String,
+      required:true
+    },
+    orderReceipt:{
+      type:String,
+      required:true
+    },
+    orderTotalFiles:{
+      type:Number,
+      required:true
+    }
+
   },
   { timestamps: true }
 );
