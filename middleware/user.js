@@ -1,6 +1,6 @@
 const { verifyToken, decodeToken } = require("../services/jwtService");
 const User = require("../model/User");
-const admin = async (req, res, next) => {
+const user = async (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Invalid Auth" });
@@ -14,11 +14,7 @@ const admin = async (req, res, next) => {
   if (!user) {
     return res.status(401).json({ error: "Invalid Auth" });
   }
-  if (user.role !== "admin") {
-    return res.status(401).json({ error: "Invalid Auth" });
-  }
   next();
 };
 
-
-module.exports = admin
+module.exports = user;
