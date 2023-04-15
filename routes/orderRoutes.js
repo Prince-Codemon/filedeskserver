@@ -1,4 +1,4 @@
-const { updateStatus, getOrder, adminOrders, userOrders, verifyOrder, createOrder } = require("../controllers/orderController");
+const { updateStatus, getOrder, adminOrders, userOrders, verifyOrder, createOrder, deleteOrder } = require("../controllers/orderController");
 const admin = require("../middleware/admin");
 const router = require("express").Router();
 
@@ -8,6 +8,7 @@ router.get("/order/:id",getOrder);
 router.put('/updatestatus/:id', admin,updateStatus)
 router.post("/createorder", createOrder);
 router.post("/verifyorder", verifyOrder);
+router.delete('/deleteorder/:id',admin,deleteOrder)
 
 module.exports = router;
     

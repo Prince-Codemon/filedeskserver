@@ -4,7 +4,7 @@ const User = require("../model/User");
 const crypto = require("crypto");
 const getId = require("../lib/userId");
 const Razorpay = require("razorpay");
-
+const { deleteFile } = require("../services/imageService");
 const verifyOrder = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -250,6 +250,31 @@ const updateStatus = async (req, res) => {
   }
 };
 
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findOrder = await Order.findOne({
+      orderId: id,
+    });
+    if (!findOrder) {
+      return res.status(400).json({ error: "No order found" });
+    } 
+    await findOrder.orderItems?.map(async (findOrderItem) => {
+      await deleteFile(findOrderItem?.file);
+    });
+    const deleteOrder = await Order.deleteOne({
+      orderId: id,
+    });
+    if (!deleteOrder) {
+      return res.status(400).json({ error: "No order found" });
+    }
+    return res.status(200).json({ message: "Order deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "something went wrong!" });
+  }
+};
+
 module.exports = {
   verifyOrder,
   createOrder,
@@ -257,4 +282,5 @@ module.exports = {
   adminOrders,
   getOrder,
   updateStatus,
+  deleteOrder,
 };
