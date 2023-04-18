@@ -147,6 +147,10 @@ const createOrder = async (req, res) => {
         orderAddress: address,
         orderTotalFiles: totalFiles,
         deliveryType: delivery?.standard ? "standard" : "fast",
+        userDetails: {
+          name: user.name,
+          email: user.email,
+        },
       });
       if (!createOrder) {
         return res.status(500).json({ error: "something went wrong!" });
@@ -236,17 +240,19 @@ const getOrder = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const id = req.params.id;
-    const order = await Order.findOneAndUpdate(
-      { orderId: id },
-      { $set: { orderStatus: req.body.orderStatus } }
-    );
+    const order = await Order.findOne({ _id: id });
     if (!order) {
       return res.status(400).json({ error: "No order found" });
     }
-    return res.status(200).json({ order });
+    if (order.orderStatus >= 3) {
+      return res.status(400).json({ error: "Order status cannot be updated" });
+    }
+    order.orderStatus = order.orderStatus + 1;
+    await order.save();
+    return res.status(200).json({ message:"status updated" });
   } catch (error) {
-    console.log(err);
-    return res.status(500).json({ error: err });
+    console.log(error);
+    return res.status(500).json({ error: error });
   }
 };
 
@@ -258,7 +264,7 @@ const deleteOrder = async (req, res) => {
     });
     if (!findOrder) {
       return res.status(400).json({ error: "No order found" });
-    } 
+    }
     await findOrder.orderItems?.map(async (findOrderItem) => {
       await deleteFile(findOrderItem?.file);
     });

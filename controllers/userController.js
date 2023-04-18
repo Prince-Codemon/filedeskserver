@@ -11,6 +11,7 @@ const {
 } = require("../services/emailService");
 const User = require("../model/User");
 const { hashPassword, comparePassword } = require("../services/bcryptService");
+const getId = require("../lib/userId");
 // const getId = require("../utils/getId");
 
 /**
@@ -133,7 +134,7 @@ const verifyEmail = async (req, res) => {
  */
 const adminProfile = async (req, res) => {
   try {
-    const id = getId(req);
+    const id =await getId(req);
     const user = await User.findById(id);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
@@ -223,6 +224,24 @@ const resetPassword = async (req, res) => {
   }
 };
 
+
+const accountType = async(req,res)=>{
+   try {
+     const id =await  getId(req)
+     const user = await User.findOne({_id:id});
+     if (!user) {
+       return res.status(400).json({ error: "User not found", type:null });
+     }
+     if(user.role==='admin'){
+        return res.status(200).json({ type: "admin" });
+     }
+     res.status(200).json({ type:'user' });
+   } catch (error) {
+     res.status(500).json({ error: error.message, type:'user' });
+     console.log(error);
+   }
+}
+
 module.exports = {
   register,
   login,
@@ -230,6 +249,7 @@ module.exports = {
   adminProfile,
   forgotPassword,
   resetPassword,
+  accountType
 };
 
 // const { validationResult } = require("express-validator");

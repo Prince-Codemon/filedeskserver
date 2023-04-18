@@ -46,6 +46,9 @@ const orderSchema = new mongoose.Schema(
     orderTotalFiles:{
       type:Number,
       required:true
+    },
+    userDetails:{
+      type:Object,
     }
 
   },
