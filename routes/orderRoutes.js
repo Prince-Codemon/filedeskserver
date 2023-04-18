@@ -8,7 +8,7 @@ router.get("/order/:id",getOrder);
 router.put('/updatestatus/:id', admin,updateStatus)
 router.post("/createorder", createOrder);
 router.post("/verifyorder", verifyOrder);
-router.put('/deleteorder/:id',admin,deleteOrder)
+router.delete('/deleteorder/:id',admin,deleteOrder)
 
 module.exports = router;
     
