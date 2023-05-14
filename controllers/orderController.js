@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const getId = require("../lib/userId");
 const Razorpay = require("razorpay");
 const { deleteFile } = require("../services/imageService");
+const io = require('../server')
 const verifyOrder = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -249,6 +250,10 @@ const updateStatus = async (req, res) => {
     }
     order.orderStatus = order.orderStatus + 1;
     await order.save();
+    io.emit("statusUpdated", {
+      orderId: id,
+      orderStatus: order.orderStatus,
+    });
     return res.status(200).json({ message:"status updated" });
   } catch (error) {
     console.log(error);
