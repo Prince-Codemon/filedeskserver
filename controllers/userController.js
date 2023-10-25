@@ -134,7 +134,7 @@ const verifyEmail = async (req, res) => {
  */
 const adminProfile = async (req, res) => {
   try {
-    const id =await getId(req);
+    const id = await getId(req);
     const user = await User.findById(id);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
@@ -160,7 +160,7 @@ const forgotPassword = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ error: errors.array()[0].msg });
     }
-    
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(500).json({ error: "No account found on this email" });
@@ -202,7 +202,7 @@ const resetPassword = async (req, res) => {
     if (exp < Date.now().valueOf() / 1000) {
       return res.status(400).json({ error: "Link has expired" });
     }
-    
+
     const user = await User.findOne({ _id: id });
     if (!user) {
       return res.status(400).json({ error: "Invalid token" });
@@ -224,24 +224,63 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const accountType = async (req, res) => {
+  try {
+    const id = await getId(req);
+    const user = await User.findOne({ _id: id });
+    if (!user) {
+      return res.status(400).json({ error: "User not found", type: null });
+    }
+    if (user.role === "admin") {
+      return res.status(200).json({ type: "admin" });
+    }
+    res.status(200).json({ type: "user" });
+  } catch (error) {
+    res.status(500).json({ error: error.message, type: "user" });
+    console.log(error);
+  }
+};
 
-const accountType = async(req,res)=>{
-   try {
-     const id =await  getId(req)
-     const user = await User.findOne({_id:id});
-     if (!user) {
-       return res.status(400).json({ error: "User not found", type:null });
-     }
-     if(user.role==='admin'){
-        return res.status(200).json({ type: "admin" });
-     }
-     res.status(200).json({ type:'user' });
-   } catch (error) {
-     res.status(500).json({ error: error.message, type:'user' });
-     console.log(error);
-   }
-}
+// _________ gOOGLE lOGIN ___________
+const googleLogin = async (req, res) => {
+  const { email_verified, name, clientId, email, picture } = req.body;
+  try {
+    if (email_verified) {
+      const user = await User.findOne({ email });
+      if (user) {
+        if (!user.verified) {
+          user.verified = true;
+          await user.save();
+        }
+        return res.status(200).json({
+          message: "User logged in successfully",
+          user: user,
+          token: generateToken(user._id),
+        });
+      } else {
+        const password = email + clientId;
+        const hashedPassword = await hashPassword(password);
 
+        const user = new User({
+          name,
+          email,
+          password: hashedPassword,
+          profile:picture,
+          verified: true,
+        });
+
+        await user.save();
+        return res.status(200).json({
+          message: "User logged in successfully",
+          user: user,
+          token: generateToken(user._id, user.email),
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
 module.exports = {
   register,
   login,
@@ -249,7 +288,8 @@ module.exports = {
   adminProfile,
   forgotPassword,
   resetPassword,
-  accountType
+  accountType,
+  googleLogin
 };
 
 // const { validationResult } = require("express-validator");
