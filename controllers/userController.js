@@ -9,6 +9,7 @@ const {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } = require("../services/emailService");
+
 const User = require("../model/User");
 const { hashPassword, comparePassword } = require("../services/bcryptService");
 const getId = require("../lib/userId");
@@ -38,8 +39,8 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
     });
-    const savedUser = await user.save();
-    res.status(200).json({ message: "User created successfully" });
+    await user.save();
+    res.status(200).json({ message: "User created successfully", user });
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log(error);
@@ -64,10 +65,10 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     // console.log(user);
     if (!user) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return res.status(400).json({ error: "User not Found" });
     }
-    if (!(await comparePassword(password, user.password))) {
-      return res.status(400).json({ error: "Invalid email or password" });
+    if (!(await comparePassword(password, user?.password))) {
+      return res.status(400).json({ error: "Invalid password" });
     }
     //
     if (!user.verified) {
@@ -83,6 +84,7 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       token,
+      user,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -174,15 +176,31 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-/**
- * It takes a token and a password, verifies the token, decodes the token, finds the user, hashes the
- * password, updates the user's password, and returns a message
- * @param req - request object
- * @param res - response object
- * @returns {
- *     "error": "Password is required"
- * }
- */
+const updateUser = async (req, res) => {
+  const id = await getId(req);
+  console.log(id);
+  const { name, profile } = req.body;
+  console.log(name, profile);
+  try {
+    const userExist = await User.findById(id);
+    if (!userExist) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Update the user's profile picture
+    const user = await User.findByIdAndUpdate(
+      id,
+      { name, profile },
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: user });
+  } catch (err) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -240,8 +258,57 @@ const accountType = async (req, res) => {
     console.log(error);
   }
 };
+const addNewAddress = async (req, res) => {
+  try {
+    const id = await getId(req);
+    const { values } = req.body;
 
-// _________ gOOGLE lOGIN ___________
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    user.address.push(values);
+    await user.save();
+    res.status(200).json({ message: "New address added" }, user.address);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error);
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const id = await getId(req);
+    const { addressId } = req.params;
+
+    // Find the user by ID
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Find the index of the address to be deleted
+    const addressIndex = user.address.findIndex(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+
+    // Remove the address from the user's address array
+    user.address.splice(addressIndex, 1);
+    await user.save();
+
+    res.status(200).json({ message: "Address deleted successfully", user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error);
+  }
+};
+
+// _________ Google Login ___________
 const googleLogin = async (req, res) => {
   const { email_verified, name, clientId, email, picture } = req.body;
   try {
@@ -252,10 +319,11 @@ const googleLogin = async (req, res) => {
           user.verified = true;
           await user.save();
         }
+
         return res.status(200).json({
           message: "User logged in successfully",
           user: user,
-          token: generateToken(user._id),
+          token: await generateToken(user._id),
         });
       } else {
         const password = email + clientId;
@@ -265,7 +333,7 @@ const googleLogin = async (req, res) => {
           name,
           email,
           password: hashedPassword,
-          profile:picture,
+          profile: picture,
           verified: true,
         });
 
@@ -273,12 +341,12 @@ const googleLogin = async (req, res) => {
         return res.status(200).json({
           message: "User logged in successfully",
           user: user,
-          token: generateToken(user._id, user.email),
+          token: await generateToken(user._id),
         });
       }
     }
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 module.exports = {
@@ -289,66 +357,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   accountType,
-  googleLogin
+  googleLogin,
+  updateUser,
 };
-
-// const { validationResult } = require("express-validator");
-// const User = require("../model/User");
-// const bcryptService = require("../services/bcryptService");
-// const jwtService = require("../services/jwtService");
-
-// const register = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(422).json(errors.errors[0]);
-//   }
-//   const { name, email, password } = req.body;
-//   try {
-//     const exsist = await User.findOne({ email });
-//     if (exsist) {
-//       return res.status(400).json({ msg: "User already exsist" });
-//     }
-//     const hashPassword = await bcryptService.hashPassword(password);
-//     const user = new User({
-//       name,
-//       email,
-//       password: hashPassword,
-//     });
-//     await user.save();
-//     return res.status(200).json({ msg: "User created successfully" });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ msg: "Internal server error", err: error });
-//   }
-// };
-
-// const login = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(422).json(errors.errors[0]);
-//   }
-//   const { email, password } = req.body;
-//   try {
-//     const exists = await User.findOne({ email });
-//     if (!exists) {
-//       return res.status(400).json({ msg: "Invalid Credentials" });
-//     }
-//     const isMatch = await bcryptService.comparePassword(
-//       password,
-//       exists.password
-//     );
-//     if (!isMatch) {
-//       return res.status(400).json({ msg: "Invalid Credentials" });
-//     }
-//     const token = await jwtService.generateToken(exists._id);
-//     return res.status(200).json({ token });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ msg: "Internal server error", err: error });
-//   }
-// };
-
-// module.exports = {
-//   register,
-//   login,
-// };

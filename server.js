@@ -45,14 +45,14 @@ io.on("connection", (socket) => {
   // });
 });
 
-module.exports =io
+module.exports = io
 
-app.use("/api/user", global, require("./routes/userRoutes"));
+app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/shop", global, require("./routes/shopRoutes"));
 app.use("/file", global, require("./routes/pdfRouter"));
-app.use("/api", global, user, require("./routes/orderRoutes"));
+app.use("/api", user, require("./routes/orderRoutes"));
 
 server.listen(PORT, () =>
-  console.log(`Listening on => http://localhost:`, PORT)
+  console.log(`Listening on => http://localhost:`,PORT)
 );
 

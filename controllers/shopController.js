@@ -17,7 +17,7 @@ const details = async (req, res) => {
     return res.status(400).json({ error: "Shop not found" });
   }
 
-  return res.status(200).json({ msg: shop });
+  return res.status(200).json({ shop });
 };
 
 /**

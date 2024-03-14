@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const getId = require("../lib/userId");
 const Razorpay = require("razorpay");
 const { deleteFile } = require("../services/imageService");
-const io = require('../server')
+const io = require("../server");
 const verifyOrder = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -173,7 +173,7 @@ const createOrder = async (req, res) => {
     return res.status(500).json({ error: "something went wrong!" });
   }
 };
-
+// all orders of a user
 const userOrders = async (req, res) => {
   try {
     const id = await getId(req);
@@ -222,11 +222,7 @@ const adminOrders = async (req, res) => {
 const getOrder = async (req, res) => {
   try {
     const id = req.params.id;
-    const order = await Order.findOne({
-      orderId: id,
-    }).select(
-      "orderStatus deliveryType orderTotal address orderItems orderAddress orderId orderPaymentId orderTotalFiles orderReceipt createdAt"
-    );
+    const order = await Order.findOne({ _id: id });
 
     if (!order) {
       return res.status(400).json({ error: "No order found" });
@@ -254,7 +250,7 @@ const updateStatus = async (req, res) => {
       orderId: id,
       orderStatus: order.orderStatus,
     });
-    return res.status(200).json({ message:"status updated" });
+    return res.status(200).json({ message: "status updated" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: error });
@@ -272,7 +268,7 @@ const deleteOrder = async (req, res) => {
     }
     await findOrder.orderItems?.map(async (findOrderItem) => {
       await deleteFile(findOrderItem?.file);
-    });
+    }); 
     const deleteOrder = await Order.deleteOne({
       orderId: id,
     });
